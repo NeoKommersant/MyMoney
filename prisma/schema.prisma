@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  name          String?
+  tgChatId      String?
+  currency      String   @default("RUB")
+  paydayAdvance Int      @default(10)
+  paydayMain    Int      @default(25)
+
+  incomes    Income[]
+  expenses   Expense[]
+  debts      Debt[]
+  goals      Goal[]
+  categories Category[]
+  reminders  Reminder[]
+}
+
+model Income {
+  id     String   @id @default(cuid())
+  userId String
+  user   User     @relation(fields: [userId], references: [id])
+  date   DateTime
+  amount Int
+  source String // salary|advance|freelance|gift...
+  note   String?
+}
+
+model Expense {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  date       DateTime
+  amount     Int
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+  note       String?
+}
+
+model Category {
+  id      String    @id @default(cuid())
+  userId  String
+  user    User      @relation(fields: [userId], references: [id])
+  name    String
+  type    String // "base" | "unexpected"
+  Expense Expense[]
+
+  @@unique([userId, name], name: "userId_name")
+}
+
+model Debt {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  name          String
+  type          String // credit_card|bank_loan|person
+  principal     Int
+  principalLeft Int
+  apr           Float?
+  minPayment    Int
+  dueDayOfMonth Int?
+  payments      DebtPayment[]
+}
+
+model DebtPayment {
+  id     String   @id @default(cuid())
+  debtId String
+  debt   Debt     @relation(fields: [debtId], references: [id])
+  date   DateTime
+  amount Int
+}
+
+model Goal {
+  id       String    @id @default(cuid())
+  userId   String
+  user     User      @relation(fields: [userId], references: [id])
+  name     String
+  target   Int
+  saved    Int       @default(0)
+  deadline DateTime?
+}
+
+model Reminder {
+  id       String  @id @default(cuid())
+  userId   String
+  user     User    @relation(fields: [userId], references: [id])
+  timeHHmm String // "21:00"
+  channel  String // "telegram"
+  enabled  Boolean @default(true)
+}
