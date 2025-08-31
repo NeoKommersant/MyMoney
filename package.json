@@ -10,8 +10,8 @@
     "start": "next start -H 0.0.0.0 -p 3000",
     "lint": "eslint",
     "prisma:seed": "ts-node --compiler-options '{\"module\":\"commonjs\"}' prisma/seed.ts",
-    "postinstall": "prisma generate",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build"
+  "postinstall": "prisma generate",
+  "vercel-build": "prisma generate && prisma migrate deploy && next build"
   },
   "dependencies": {
     "@prisma/client": "^6.15.0",
